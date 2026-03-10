@@ -22,7 +22,7 @@ import argparse
 from urdf_parser_py.urdf import *
 import PyKDL
 import math
-import rospkg
+from ament_index_python.packages import get_package_share_directory
 import subprocess
 import os
 
@@ -106,10 +106,11 @@ class CapsuleWriter(object):
         mesh_filename = mesh_name
         is_package = mesh_filename.find('package://')
         if is_package != -1:
-            rospack = rospkg.RosPack()
             package_len = mesh_filename.find('/', 10)
             package_name = mesh_filename[10:package_len]
-            ros_path = rospack.get_path(package_name)
+            print(f"package_name: {package_name}")
+            ros_path = get_package_share_directory(package_name)
+            print(f"ros_path: {ros_path}")
             mesh_filename = ros_path + '/' + mesh_filename[package_len + 1:]
 
         self.mesh_path = mesh_filename
