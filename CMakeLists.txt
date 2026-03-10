@@ -2,7 +2,7 @@
 # Authors: Alessio Rocchi
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.22)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 OLD)
     cmake_policy(SET CMP0005 NEW)
@@ -70,9 +70,16 @@ endif()
 
 
 # we now add the YARP and iCub libraries to our project.
-TARGET_LINK_LIBRARIES(robot_capsule_generator  PUBLIC  ${roboptim_capsule_LIBRARIES}
-                                                       ${Boost_LIBRARIES}
-                                               PRIVATE ${trimesh2_LIBRARIES})
+TARGET_LINK_LIBRARIES(robot_capsule_generator
+    PUBLIC
+        ${roboptim_capsule_LIBRARIES}
+        Boost::program_options
+        Boost::filesystem
+        Boost::system
+        Boost::date_time
+    PRIVATE
+        ${trimesh2_LIBRARIES}
+)
 
 
 
@@ -84,12 +91,3 @@ install(TARGETS robot_capsule_generator
 
 INSTALL(PROGRAMS python/robot_capsule_urdf python/robot_capsule_urdf_to_rviz 
         DESTINATION bin)
-
-
-#add_subdirectory(doc)
-
-#######################
-# Add Testing target  #
-#######################
-#enable_testing()
-#add_subdirectory(tests)
