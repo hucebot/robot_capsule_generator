@@ -28,13 +28,15 @@ FIND_PACKAGE(Boost COMPONENTS system filesystem program_options date_time REQUIR
 FIND_PACKAGE(urdf REQUIRED)
 FIND_PACKAGE(srdfdom REQUIRED)
 FIND_PACKAGE(moveit_core REQUIRED)
+find_package(xbot2_interface REQUIRED)
+
 pkg_check_modules(roboptim_capsule roboptim-capsule)
 if(NOT roboptim_capsule_FOUND)
     message( FATAL_ERROR "roboptim-capsule not found. Aborting")
 endif()
 
-find_package(rclcpp REQUIRED)
 find_package(nlohmann_json REQUIRED)
+
 
 # add include directories
 INCLUDE_DIRECTORIES(include ${roboptim_capsule_INCLUDE_DIRS}
@@ -97,15 +99,13 @@ TARGET_LINK_LIBRARIES(robot_capsule_generator
 target_include_directories(compute_default_collisions
   PRIVATE
   /opt/ros/jazzy/include/moveit_core
-    ${moveit_core_INCLUDE_DIRS}
-    ${srdfdom_INCLUDE_DIRS}
     ${urdf_INCLUDE_DIRS}
 )
 
 # Link libraries
 target_link_libraries(compute_default_collisions
-  ${moveit_core_LIBRARIES}
-  ${srdfdom_LIBRARIES}
+    xbot2_interface::xbot2_interface
+    xbot2_interface::collision
   nlohmann_json::nlohmann_json
 )
 
