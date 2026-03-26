@@ -1,6 +1,11 @@
-# Copyright: (C) 2014 Walkman Consortium
+# Original Copyright: (C) 2014 Walkman Consortium
 # Authors: Alessio Rocchi
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
+#
+# Updates Copyright: (C) 2026 euROBIN, MeRLin
+# Authors: EnricoM Mingo Hoffman
+
+
 
 cmake_minimum_required(VERSION 3.22)
 if(COMMAND cmake_policy)
@@ -27,6 +32,9 @@ pkg_check_modules(roboptim_capsule roboptim-capsule)
 if(NOT roboptim_capsule_FOUND)
     message( FATAL_ERROR "roboptim-capsule not found. Aborting")
 endif()
+
+find_package(rclcpp REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 # add include directories
 INCLUDE_DIRECTORIES(include ${roboptim_capsule_INCLUDE_DIRS}
@@ -63,6 +71,10 @@ ADD_EXECUTABLE(robot_capsule_generator
                     src/robot_capsule_generator.cpp
                     ${generator_INCLUDES})
 
+ADD_EXECUTABLE(compute_default_collisions
+                    src/compute_default_collisions.cpp)
+
+
 # we must wait for trimesh2-ext to be ready before building robot_capsule_generator
 if(TARGET trimesh2-ext)
     add_dependencies(robot_capsule_generator trimesh2-ext)
@@ -81,9 +93,36 @@ TARGET_LINK_LIBRARIES(robot_capsule_generator
         ${trimesh2_LIBRARIES}
 )
 
+# Include directories
+target_include_directories(compute_default_collisions
+  PRIVATE
+  /opt/ros/jazzy/include/moveit_core
+    ${moveit_core_INCLUDE_DIRS}
+    ${srdfdom_INCLUDE_DIRS}
+    ${urdf_INCLUDE_DIRS}
+)
+
+# Link libraries
+target_link_libraries(compute_default_collisions
+  ${moveit_core_LIBRARIES}
+  ${srdfdom_LIBRARIES}
+  nlohmann_json::nlohmann_json
+)
+
+# C++ standard
+set_target_properties(compute_default_collisions PROPERTIES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
+)
 
 
 install(TARGETS robot_capsule_generator
+   ARCHIVE DESTINATION lib
+   LIBRARY DESTINATION lib
+   RUNTIME DESTINATION bin
+)
+
+install(TARGETS compute_default_collisions
    ARCHIVE DESTINATION lib
    LIBRARY DESTINATION lib
    RUNTIME DESTINATION bin
